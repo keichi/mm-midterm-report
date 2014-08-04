@@ -1,0 +1,46 @@
+\documentclass[a4j]{jreport}
+
+% Package imports
+\usepackage{txfonts}
+\usepackage{booktabs}
+\usepackage{listings}
+\usepackage[dvipdfmx]{graphicx}
+\usepackage{newclude}
+\usepackage{cite}
+\usepackage{url}
+
+\graphicspath{{./img/}}
+
+\begin{document}
+
+% Cover page related things
+\title{マルチメディア工学演習\\中間レポート}
+\author{
+  33F14002 小島 孝征\\
+  33F14006 杉村 憲司\\
+  33F14007 高橋 慧智\\
+  33F14018 山下 凌\\
+  33F14019 山田 拓哉\\
+  33F14013 二神 司 
+}
+
+\maketitle
+
+\tableofcontents
+
+% Body
+\include*{src/chapter1}
+\include*{src/chapter2-1}
+\include*{src/chapter2-2}
+\include*{src/chapter2-3}
+\include*{src/chapter2-4}
+\include*{src/chapter2-5}
+\include*{src/chapter3}
+\include*{src/chapter4}
+\include*{src/chapter5}
+
+% Bibliography
+\bibliographystyle{junsrt}
+\bibliography{references}
+
+\end{document}
