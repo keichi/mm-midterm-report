@@ -1,14 +1,96 @@
 \chapter{無線LANセキュリティ演習}
 
-\section{概要}
+\section{DoS攻撃}
 
-無線LAN攻撃演習では，Aircrack-ngを用いて無線LANのWEPキーを解読した．
+\subsection{概要}
+
+無線LANはその利便性のゆえに，現在広く一般に普及している．
+しかし，無線による通信を行うことから，盗聴や侵入など，様々な攻撃に晒されてしまうという問題点がある．
+
+この実習では，無線LANに対する代表的な攻撃の例としてDoS攻撃を取り上げ，実際に攻撃行ってその影響を観察した後，DoS攻撃への対策を考案した．
+
+\subsection{実習内容}
+
+\subsubsection{実習設備および実習環境}
+使用したノートパソコンの一覧を表\ref{HW}に示す．
+
+また，使用したソフトウェアは以下の通りである．
+
+\begin{itemize}
+  \item OmniPeek Personal（Windows用ソフトウェア)
+  \item K-MAC（Windows用ソフトウェア)
+  \item Aircrack-ng（BackTrack5用ソフトウェア)
+\end{itemize}
+
+\begin{table}[htsp]
+  \caption{使用したノートパソコン一覧}
+  \begin{tabular}{|c|c|} \hline
+    機種名 & 備考 \\ \hline \hline
+  \shortstack{\\ Mouse Computer S222X } & \shortstack{\\ 以下のOSがインストール済み \\ Kali Linux 1.0.7 Debian GNU/Linux（Kali Linux 1.0.7）\\ BackTrack 5 R3 Ubuntu 10.04.3 LTS \\ Ubuntu 14.04 LTS Ubuntu \\ Windows8} \\ \hline
+  \shortstack{\\ Dell Inspiron 15R } & \shortstack{\\ 以下のOSがインストール済み \\ Kali Linux 1.0.3 \\ BackTrack 5 R3 \\ Ubuntu 13.04 \\ Windows8} \\ \hline
+  \shortstack{\\ Mouse Computer s200} & \shortstack{\\ 予備機 \\ 以下のOSがインストール済み \\ Windows XP \\ BackTrack4} \\ \hline
+  \end{tabular}
+  \label{HW}
+\end{table}
+
+実験環境の概要図を図\ref{zikken}に示す．BackTrackを搭載したPC1台とWindowsを搭載したPC１台を攻撃用とし，それ以外のPC間でアクセスポイントを介してpingコマンドなどにより無線通信LAN通信を行う．
+
+\begin{figure}
+  \hspace*{\fill}
+  \includegraphics[scale=0.6]{MM01}
+  \hspace*{\fill}
+  \caption{実習環境}
+  \label{zikken}
+\end{figure}
+
+\subsubsection{実習の手順}
+
+\begin{itemize}
+\item Windows搭載の攻撃用PCを用い，アクセスポイントを介し，正常な無線LAN通信を行っている端末間の通信を解析する．ソフトウェアはOmniPeekおよびK-MACを用いる．
+\item 通信の解析により，攻撃者がフレームを送信するために必要となる情報，たとえば端末やアクセスポイントのMACアドレス，BSSIDなどを収集する．
+\item 収集した情報を解析し，それを基にBackTrack搭載PCからaireplay-ngコマンドを用いてdisassociateフレームを送出し，端末間通信への影響を調べる．
+\item 送信元，送信先のパターンを変更した場合の影響を調べる．
+\item アクセスポイントのセキュリティ設定を変更した場合の影響を調べる．
+\item disassociateフレームの代わりにdeauthenticationフレームを用いた場合について調べる．
+\end{itemize}
+
+\subsection{考察}
+無線端末の接続状態は，大きく分けて3段階に分かれる．
+認証も接続もなされていない状況，認証のみなされている状況，認証および接続がなされている状況の3つである．
+正常な通信が行われている時，端末は認証および接続がなされている状況にある．
+
+ここで，攻撃者がDoS攻撃を行ってdisassociateフレームを送出すると，受信した端末は接続終了が要求されたものとして接続を切り，認証はなされるが接続されていない状態へと遷移する．
+このため，通常な通信が途中で一時的に切断されしまい，再度接続が行われるまで切断状態は継続することになる．
+
+さらに，disassociateフレームでなくdeauthenticationフレームを創出した場合には，受信端末は認証も接続もなされていない状態へと遷移する．
+このため，再度認証を行う処理と再度接続を行う処理の両方を行わなければならず，disassiciateフレームの送出によるDoS攻撃よりも影響は大きくなる．
+
+無線端末の状態遷移を図\ref{tanmatu}に示す．
+
+\begin{figure}
+  \hspace*{\fill}
+  \includegraphics[scale=0.6]{MM02}
+  \hspace*{\fill}
+  \caption{無線端末の通信状態遷移図}
+  \label{tanmatu}
+\end{figure}
+
+このように，収集した情報から，管理フレームを偽装して攻撃を行うことがDoS(Denial os Service)攻撃の近年の主流となっている．
+今回，私の班では，多量のパケットを周辺ネットワークに投入することにより通信を阻害するというDoS攻撃の一手法を主に念頭に置いて実習を行ったため，管理フレームの偽装を行う手法についてはあまりデータを得ることはできなかった．
+
+前述した，管理フレームを偽装する手法への対策としては，パケットが傍受されても内部情報を読み取られないように堅牢な暗号化手法を用いる，パケットの本来の送信者を確実に認識する何らかの手法を用いる，などが考えられる．
+
+\section{WEPキーの解読}
+
+\subsection{概要}
+
+この実習では，Aircrack-ngを用いて無線LANのWEPキーを解読した．
 また，解読したWEPキーを用いて盗聴したパケットを復号し，通信の内容を読み取れることを
 確認した．
 
-\section{実験内容}
+\subsection{実験内容}
 
-\subsection{実験環境}
+\subsubsection{実験環境}
 
 実験には，WEP暗号化に対応した無線LANルータと，無線LANクライアント機能を備えた2台のノートPCを用いた．
 
@@ -25,7 +107,7 @@
   このPCで，Aircrack-ngを実行し，実際にWEPキーの解読を行った．
 \end{itemize}
 
-\subsection{実験手順（WEPキーの解読）}
+\subsubsection{実験手順（WEPキーの解読）}
 
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
@@ -42,7 +124,7 @@
   \texttt{airodump-ng}を実行した状態で，\texttt{aircrack-ng}を起動し，解読した．
 \end{enumerate}
 
-\subsection{実験手順（通信の盗聴）}
+\subsubsection{実験手順（通信の盗聴）}
 
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
@@ -57,11 +139,11 @@
   復号したキャプチャファイルをWiresharkで開いた．
 \end{enumerate}
 
-\section{実験結果}
+\subsection{実験結果}
 
 無線LANルータに設定した13文字のWEPキーは，\texttt{aircrack-ng}を起動してから約5分弱で正しく解読することができた．また，解読したWEPキーを用いてキャプチャしたパケットを解読したところ，HTTP通信などを解読することができた．
 
-\section{考察}
+\subsection{考察}
 
 WEP（Wired Equvivalent Privacy）はRC4（Rivest Cipher
 4）を暗号化に用いている．RC4は同じ暗号鍵で異なる鍵ストリームを生成するために，IV
